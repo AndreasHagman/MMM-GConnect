@@ -13,12 +13,12 @@ Module.register("MMM-GConnect", {
     return [
       this.file("node_modules/preact/dist/preact.min.js"),
       this.file("node_modules/htm/dist/htm.js"),
-      'https://unpkg.com/maplibre-gl@5.5.0/dist/maplibre-gl.js'
+      'https://unpkg.com/maplibre-gl@5.16.0/dist/maplibre-gl.js'
     ];
   },
   getStyles: function() {
 	  return [
-		'https://unpkg.com/maplibre-gl@5.5.0/dist/maplibre-gl.css',
+		'https://unpkg.com/maplibre-gl@5.16.0/dist/maplibre-gl.css',
 	  ]
   },
   getDom: () => {
@@ -182,6 +182,12 @@ Module.register("MMM-GConnect", {
                   'line-width': 3,
               },
           });
+
+          const bbox = new maplibregl.LngLatBounds();
+          currentData?.geoJsonData?.features?.[0]?.geometry?.coordinates.forEach(coord => {
+            bbox.extend([coord[0], coord[1]]);
+          });
+          map.fitBounds(bbox, { padding: 40 });
         }
       }, 8000);
     }
@@ -202,6 +208,5 @@ Module.register("MMM-GConnect", {
       default:
     }
     this.updateDom();
-
   }
 });

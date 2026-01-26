@@ -1,10 +1,10 @@
 ![MMM-GConnect logo](./doc/MMM-GConnect-logo.png)
 
-# Magic Mirror² MMM-GConnect
+# MagicMirror² MMM-GConnect
 
 [[Español]](./README-es.md) [[Türkçe]](./README-tr.md)
 
-This is a [`Magic Mirror²`](https://magicmirror.builders/) module that displays data from the most recent activity loggged
+This is a [`MagicMirror²`](https://magicmirror.builders/) module that displays data from the most recent activity loggged
 in your Garmin Connect™ account.
 
 Specifically, it displays the following data:
@@ -23,13 +23,13 @@ Note: This project is not affiliated with the Garmin company.
 
 ## Preview Screenshot
 
-This is an example of how Magic Mirror² GConnect looks in my configuration:
+This is an example of how MagicMirror² GConnect looks in my configuration:
 
-![Magic Mirror² GConnect exmaple screen](./doc/screenshot-MMM-GConnect-Up.png)
+![MagicMirror² GConnect exmaple screen](./doc/screenshot-MMM-GConnect-Up.png)
 
 ## Installation
 
-Clone this repository into your MagicMirror `modules` folder.
+Clone this repository into your MagicMirror² `modules` folder.
 
 Example:
 
@@ -71,8 +71,7 @@ Finally, edit your configuration file under `config/config.js` with the followin
 
 You can get the MapTiler API key by registering on the [MapTiler website](https://www.maptiler.com) and going to "API Keys" on the left menu. It is free for a certain amount of invocations per month.
 
-Note that in case you use the map feature and have a lot of activity, the `data` folder within MMM-GConnect might fill up with downloaded TCX and GeoJSON activity files. Consider purging that
-folder from time to time.
+Note that in case you use the map feature and have a lot of activity, the `data` folder within MMM-GConnect might fill up with downloaded TCX and GeoJSON activity files. Consider purging that folder from time to time.
 
 ## Config Options
 | **Option**        | **Description** |
@@ -92,8 +91,24 @@ Are you interested? Please contact me.
 
 ## Testing
 
-I have tested the `Magic Mirror² GConnect` module on an Raspberry Pi 3B with Raspberry OS
-and Node 22 and `Magic Mirror²` version 2.31.0.
+I have tested the `MagicMirror² GConnect` module on an Raspberry Pi 3B with Raspberry OS
+and Node 22 and `MagicMirror²` version 2.31.0.
+
+## Updating
+
+In order to update the module, first stop MagicMirror². Then go to your MMM-GConnect installation directory, like for example so:
+
+```bash
+cd /home/pi/MagicMirror/modules/MMM-GConnect
+```
+
+Then run the following git command:
+
+```bash
+git pull
+```
+
+This should update the files. Then restart MagicMirror².
 
 ## Icons
 
@@ -105,7 +120,7 @@ The module uses the following icons from iconduck.com:
 
 ## References
 
-Magic Mirror²: https://magicmirror.builders
+MagicMirror²: https://magicmirror.builders
 
 JavaScript library garmin-connect: https://github.com/Pythe1337N/garmin-connect
 

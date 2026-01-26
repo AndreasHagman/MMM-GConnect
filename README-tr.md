@@ -5,7 +5,7 @@
 [[Español]](./README-es.md) [[English]](./README.md)
 
 Bu, Garmin Connect™ hesabınızda
-kaydedilen en son etkinlikten verileri görüntüleyen bir [``Magic Mirror²``](https://magicmirror.builders/) modülüdür.
+kaydedilen en son etkinlikten verileri görüntüleyen bir [``MagicMirror²``](https://magicmirror.builders/) modülüdür.
 
 Özellikle aşağıdaki verileri görüntüler:
 - son spor faaliyetinizden bu yana geçen günler
@@ -21,13 +21,13 @@ Not: Bu proje Garmin şirketi ile bağlantılı değildir.
 
 ## Önizleme Ekran Görüntüsü
 
-Bu, Magic Mirror² GConnect'in benim yapılandırmamda nasıl göründüğünün bir örneğidir:
+Bu, MagicMirror² GConnect'in benim yapılandırmamda nasıl göründüğünün bir örneğidir:
 
-![Magic Mirror² GConnect exmaple screen](./doc/screenshot-MMM-GConnect-Up.png)
+![MagicMirror² GConnect exmaple screen](./doc/screenshot-MMM-GConnect-Up.png)
 
 ## Kurulum
 
-Bu depoyu MagicMirror `modules` klasörünüze klonlayın.
+Bu depoyu MagicMirror² `modules` klasörünüze klonlayın.
 
 Örnek:
 
@@ -89,8 +89,8 @@ Lütfen tüm özel verileri kaldırın. TCX dosyası yalnızca uygulamanın işl
 
 ## Test
 
-Magic Mirror² GConnect` modülünü Raspberry OS
-ve Node 22 ve `Magic Mirror²` sürüm 2.31.0 ile bir Raspberry Pi 3B üzerinde test ettim.
+MagicMirror² GConnect` modülünü Raspberry OS
+ve Node 22 ve `MagicMirror²` sürüm 2.31.0 ile bir Raspberry Pi 3B üzerinde test ettim.
 
 ## Simgeler
 
@@ -102,7 +102,7 @@ Modül iconduck.com'dan aşağıdaki simgeleri kullanır:
 
 ## Referanslar
 
-Magic Mirror²: https://magicmirror.builders
+MagicMirror²: https://magicmirror.builders
 
 JavaScript library garmin-connect: https://github.com/Pythe1337N/garmin-connect
 

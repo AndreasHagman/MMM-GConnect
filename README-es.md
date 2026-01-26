@@ -4,7 +4,7 @@
 
 [[English]](./README.md) [[Türkçe]](./README-tr.md)
 
-Se trata de un módulo [`Magic Mirror²`](https://magicmirror.builders/) que muestra datos de la actividad más reciente registrada
+Se trata de un módulo [`MagicMirror²`](https://magicmirror.builders/) que muestra datos de la actividad más reciente registrada
 en tu cuenta de Garmin Connect™.
 
 En concreto, muestra los siguientes datos:
@@ -31,7 +31,7 @@ Este es un ejemplo de cómo se ve Magic Mirror² GConnect en mi configuración:
 
 ## Instalación
 
-Clone este repositorio en su carpeta MagicMirror `modules`.
+Clone este repositorio en su carpeta MagicMirror² `modules`.
 
 Ejemplo:
 
@@ -96,8 +96,8 @@ Por favor, elimine todos los datos privados. El archivo TCX sólo se utiliza par
 
 ## Pruebas
 
-He probado el módulo `Magic Mirror² GConnect` en una Raspberry Pi 3B con Raspberry OS
-y Node 22 y `Magic Mirror²` versión 2.31.0.
+He probado el módulo `MagicMirror² GConnect` en una Raspberry Pi 3B con Raspberry OS
+y Node 22 y `MagicMirror²` versión 2.31.0.
 
 ## Iconos
 
@@ -109,7 +109,7 @@ El módulo utiliza los siguientes iconos de iconduck.com:
 
 ## Referencias
 
-Magic Mirror²: https://magicmirror.builders
+MagicMirror²: https://magicmirror.builders
 
 JavaScript library garmin-connect: https://github.com/Pythe1337N/garmin-connect
 
