@@ -1,34 +1,30 @@
-let currentData = {};
-let map;
-
 Module.register("MMM-GConnect", {
   defaults: {
     loginName: null,
-    password: null
+    password: null,
+    interval: 60000000,
+    showMap: false,
+    mapboxToken: null
   },
   start: function () {
+    this.data_ = {};
     this.getData();
   },
   getScripts: function () {
     return [
       this.file("node_modules/preact/dist/preact.min.js"),
-      this.file("node_modules/htm/dist/htm.js"),
-      'https://unpkg.com/maplibre-gl@5.16.0/dist/maplibre-gl.js'
+      this.file("node_modules/htm/dist/htm.js")
     ];
   },
-  getStyles: function() {
-	  return [
-		'https://unpkg.com/maplibre-gl@5.16.0/dist/maplibre-gl.css',
-	  ]
-  },
-  getDom: () => {
+  getDom: function () {
+    const self = this;
     const { h, render } = preact;
     const html = htm.bind(h);
+    const currentData = self.data_ || {};
 
-    const GarminWidget = ({ diffDays, distance, time, hr, activityType, showMap }) => {
+    const GarminWidget = ({ diffDays, distance, time, hr, activityType, showMap, mapImageUrl }) => {
       const diffColor = diffDays > 3 ? "red" : "white";
 
-      // taken from https://iconduck.com/icons/12253/running International Attribution License
       const RunningIcon = ({ size, paddingTop }) => {
         return html`<svg
           style="padding-top: ${paddingTop}px; width: ${size}px; height: ${size}px"
@@ -49,7 +45,6 @@ Module.register("MMM-GConnect", {
         </svg>`;
       };
 
-      // taken from https://iconduck.com/icons/117847/heart-love-like, MIT License
       const HeartIcon = () => {
         return html`<svg
           style="padding-top: 5px"
@@ -70,7 +65,6 @@ Module.register("MMM-GConnect", {
         </svg>`;
       };
 
-      // taken from: https://iconduck.com/icons/88028/clock-time-four-outline, Apache License
       const ClockIcon = () => {
         return html`<svg
           style="padding-top: 5px"
@@ -86,24 +80,24 @@ Module.register("MMM-GConnect", {
         </svg>`;
       };
 
-      return html`<div style="margin-left: 1rem; margin-top: 4rem">
+      return html`<div style="margin-left: 1rem; margin-top: 1rem">
         <div
-          style="display: flex; padding-top: 1rem; margin: 0; padding-bottom: 0"
+          style="display: flex; padding-top: 0.25rem; margin: 0; padding-bottom: 0"
         >
-          <${RunningIcon} size=${38} paddingTop=${10} />
+          <${RunningIcon} size=${22} paddingTop=${4} />
           <p
-            style="font-size: 2rem; color: white; padding: 0; margin: 0; margin-left: 0.5rem"
+            style="font-size: 1.2rem; color: white; padding: 0; margin: 0; margin-left: 0.5rem"
           >
             ${activityType}
           </p>
         </div>
-        <div style="display: inline-flex; gap: 1.5rem">
+        <div style="display: inline-flex; gap: 1rem; align-items: center">
           <p
-            style="font-size: 6rem; color: ${diffColor}; padding: 0; margin: 0"
+            style="font-size: 3rem; color: ${diffColor}; padding: 0; margin: 0"
           >
             ${diffDays}
           </p>
-          <div style="margin-top: 1.9rem">
+          <div style="margin-top: 0">
             <div style="display: flex">
               <${ClockIcon} />
               <p
@@ -130,9 +124,8 @@ Module.register("MMM-GConnect", {
             </div>
           </div>
         </div>
-        ${showMap
-          ? html`<div id="map" style="width: 500px; height: 500px">
-          <p>Loading map...</p></div>`
+        ${showMap && mapImageUrl
+          ? html`<img src=${mapImageUrl} style="width: 250px; max-width: 100%; margin-top: 0; border-radius: 6px; display: block" />`
           : ""}
       </div>`;
     };
@@ -147,63 +140,24 @@ Module.register("MMM-GConnect", {
         speed=${currentData.lastActivityAvgSpeed}
         activityType=${currentData.activityType}
         showMap=${currentData.showMap}
+        mapImageUrl=${currentData.mapImageUrl}
       />`,
       divElement
     );
 
-    if (currentData?.showMap) {
-      setTimeout(() => {
-        if (currentData?.mapTilerKey) {
-          const startingCoordinateLat = currentData?.geoJsonData?.features?.[0]?.geometry?.coordinates?.[currentData?.geoJsonData?.features?.[0]?.geometry?.coordinates?.length-1]?.[0];
-          const startingCoordinateLng = currentData?.geoJsonData?.features?.[0]?.geometry?.coordinates?.[currentData?.geoJsonData?.features?.[0]?.geometry?.coordinates?.length-1]?.[1];
-          map = new maplibregl.Map({
-            container: 'map', // container id
-            style:
-                `https://api.maptiler.com/maps/streets/style.json?key=${currentData?.mapTilerKey}`,
-            center: [startingCoordinateLat, startingCoordinateLng], // starting position
-            zoom: 12 // starting zoom
-          });
-        }
-      }, 1500);
-
-      setTimeout(() => {
-        if (map && map.isStyleLoaded() && currentData?.geoJsonData) {
-          map.addSource('geojson-source', {
-              'type': 'geojson',
-              'data': currentData.geoJsonData,
-          });
-
-          map.addLayer({
-              'id': 'uploaded-polygons',
-              'type': 'line',
-              'source': 'geojson-source',
-              'paint': {
-                  'line-color': 'red',
-                  'line-width': 3,
-              },
-          });
-
-          const bbox = new maplibregl.LngLatBounds();
-          currentData?.geoJsonData?.features?.[0]?.geometry?.coordinates.forEach(coord => {
-            bbox.extend([coord[0], coord[1]]);
-          });
-          map.fitBounds(bbox, { padding: 40 });
-        }
-      }, 8000);
-    }
-
     return divElement;
   },
   getData: function () {
-    this.sendSocketNotification("GET_GARMIN_DATA", this.config);
+    this.sendSocketNotification("GET_GARMIN_DATA", Object.assign({}, this.config, { identifier: this.identifier }));
     setInterval(() => {
-      this.sendSocketNotification("GET_GARMIN_DATA", this.config);
+      this.sendSocketNotification("GET_GARMIN_DATA", Object.assign({}, this.config, { identifier: this.identifier }));
     }, this.config.interval);
   },
   socketNotificationReceived: function (notification, payload) {
     switch (notification) {
       case "UPDATE_GARMIN_DATA":
-        currentData = payload;
+        if (payload.identifier !== this.identifier) { break; }
+        this.data_ = payload;
         break;
       default:
     }

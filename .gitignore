@@ -4,3 +4,6 @@ backup-raspi
 _templates/
 .DS_Store
 
+
+data/
+*.bak

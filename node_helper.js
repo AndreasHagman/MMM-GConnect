@@ -16,6 +16,62 @@ const getDiffActivityDate = (activityDate) => {
   return diff;
 };
 
+// Standard Google/Mapbox polyline encoding (precision 5), no external dependency needed.
+const encodeSignedNumber = (num) => {
+  let sgnNum = num << 1;
+  if (num < 0) {
+    sgnNum = ~sgnNum;
+  }
+  let output = '';
+  while (sgnNum >= 0x20) {
+    output += String.fromCharCode((0x20 | (sgnNum & 0x1f)) + 63);
+    sgnNum >>= 5;
+  }
+  output += String.fromCharCode(sgnNum + 63);
+  return output;
+};
+
+const encodePolyline = (coordinates) => {
+  const factor = 1e5;
+  let output = '';
+  let prevLat = 0;
+  let prevLng = 0;
+  coordinates.forEach((coord) => {
+    const lat = Math.round(coord[1] * factor);
+    const lng = Math.round(coord[0] * factor);
+    output += encodeSignedNumber(lat - prevLat);
+    output += encodeSignedNumber(lng - prevLng);
+    prevLat = lat;
+    prevLng = lng;
+  });
+  return output;
+};
+
+// Keep the URL short: sample down to at most maxPoints, always keeping first/last.
+const downsample = (coordinates, maxPoints) => {
+  if (coordinates.length <= maxPoints) {
+    return coordinates;
+  }
+  const step = Math.ceil(coordinates.length / maxPoints);
+  const sampled = coordinates.filter((_, i) => i % step === 0);
+  const last = coordinates[coordinates.length - 1];
+  if (sampled[sampled.length - 1] !== last) {
+    sampled.push(last);
+  }
+  return sampled;
+};
+
+const buildStaticMapUrl = (geoJsonData, mapboxToken) => {
+  const coordinates = geoJsonData?.features?.[0]?.geometry?.coordinates;
+  if (!coordinates || coordinates.length < 2 || !mapboxToken) {
+    return null;
+  }
+  const sampled = downsample(coordinates, 150);
+  const polyline = encodePolyline(sampled);
+  const overlay = `path-4+e63946-1(${encodeURIComponent(polyline)})`;
+  return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/${overlay}/auto/250x250@2x?padding=30&access_token=${mapboxToken}`;
+};
+
 module.exports = NodeHelper.create({
   start: function () {
     console.info("MMM-GConnect started!");
@@ -41,7 +97,7 @@ module.exports = NodeHelper.create({
         const showMap = payload?.showMap || false;
 
         if (showMap) {
-          const mapTilerKey = payload?.mapTilerKey;
+          const mapboxToken = payload?.mapboxToken;
           await GCClient.downloadOriginalActivityData({ activityId: activities[0].activityId }, `${this.path}/data`, 'tcx');
 
           const arch = process.arch;
@@ -54,7 +110,6 @@ module.exports = NodeHelper.create({
               }
               if (stderr) console.error(`Command stderr: ${stderr}`);
 
-              // Read the generated JSON file
               const jsonFilePath = `${this.path}/data/${activities[0].activityId}.json`;
               if (!fs.existsSync(jsonFilePath)) {
                 console.error(`GeoJSON file not found: ${jsonFilePath}`);
@@ -63,16 +118,17 @@ module.exports = NodeHelper.create({
 
               try {
                 const geoJsonData = JSON.parse(fs.readFileSync(jsonFilePath, 'utf8'));
+                const mapImageUrl = buildStaticMapUrl(geoJsonData, mapboxToken);
 
                 self.sendSocketNotification("UPDATE_GARMIN_DATA", {
+        identifier: payload.identifier,
                   diff,
                   lastActivityDistance,
                   lastActivityTime,
                   lastActivityAvgSpeed,
                   lastActivityAvgHR,
                   activityType,
-                  mapTilerKey,
-                  geoJsonData,
+                  mapImageUrl,
                   showMap,
                 });
             } catch (parseError) {
@@ -81,6 +137,7 @@ module.exports = NodeHelper.create({
           });
          } else {
           self.sendSocketNotification("UPDATE_GARMIN_DATA", {
+        identifier: payload.identifier,
             diff,
             lastActivityDistance,
             lastActivityTime,
